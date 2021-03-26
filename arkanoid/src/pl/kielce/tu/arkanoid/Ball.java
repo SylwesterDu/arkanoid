@@ -3,16 +3,17 @@ package pl.kielce.tu.arkanoid;
 public class Ball {
 	double xPos;
 	double yPos;
-	final double radius;
+	final double diameter;
 	double xMovement;
 	double yMovement;
-	
-	public Ball(double xPos, double yPos, double radius, double xMovement, double yMovement) {
+	double ballSpeed;
+	public Ball(double xPos, double yPos, double diameter, double xMovement, double yMovement) {
 		this.xPos = xPos;
 		this.yPos = yPos;
-		this.radius = radius;
+		this.diameter = diameter;
 		this.xMovement = xMovement;
 		this.yMovement = yMovement;
+		ballSpeed = Math.sqrt(Math.pow(xMovement, 2) + Math.pow(yMovement, 2));
 	}
 
 	

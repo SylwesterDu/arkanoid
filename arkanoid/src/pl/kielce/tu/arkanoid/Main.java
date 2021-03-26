@@ -1,7 +1,5 @@
 package pl.kielce.tu.arkanoid;
 	
-import com.sun.prism.Graphics;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -13,8 +11,10 @@ import javafx.util.Duration;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 
 
 public class Main extends Application implements EventHandler<KeyEvent>{
@@ -23,6 +23,7 @@ public class Main extends Application implements EventHandler<KeyEvent>{
 	
 	Ball ball;
 	Shelf shelf;
+	Block[][] blocks;
 	public static void main(String[] args) {
 		launch(args);
 	}
@@ -30,8 +31,10 @@ public class Main extends Application implements EventHandler<KeyEvent>{
 	@Override
 	public void start(Stage primaryStage) throws Exception{
 		primaryStage.setTitle(APP_NAME);
-		primaryStage.setMaximized(true);
+		primaryStage.setFullScreen(true);
 		primaryStage.setResizable(false);
+		primaryStage.setFullScreenExitHint("");
+		primaryStage.setFullScreenExitKeyCombination(KeyCombination.keyCombination("Alt+f4"));
 		
 		Values.gameState = GameState.MENU;
 		
@@ -40,7 +43,7 @@ public class Main extends Application implements EventHandler<KeyEvent>{
 		
 		Canvas canvas  = new Canvas(GraphicsSystem.width, GraphicsSystem.height);
 		GraphicsContext context = canvas.getGraphicsContext2D();
-		Timeline timeline = new Timeline(new KeyFrame(Duration.millis(10), e->run(context)));
+		Timeline timeline = new Timeline(new KeyFrame(Duration.millis(5), event->run(context)));
 		timeline.setCycleCount(Timeline.INDEFINITE);
 		
 		Scene scene = new Scene(new StackPane(canvas));
@@ -61,6 +64,13 @@ public class Main extends Application implements EventHandler<KeyEvent>{
 		
 		primaryStage.setScene(scene);
 		
+		createGameObjects();
+		
+		primaryStage.show();
+		timeline.play(); 
+	}
+	
+	private void createGameObjects() {
 		ball = new Ball(GraphicsSystem.width/2 - 10, GraphicsSystem.height *0.8, 20, 3, -3);
 		GraphicsSystem.ball = ball;
 		EventSystem.ball = ball;
@@ -69,10 +79,25 @@ public class Main extends Application implements EventHandler<KeyEvent>{
 		GraphicsSystem.shelf = shelf;
 		EventSystem.shelf = shelf;
 		
-		primaryStage.show();
-		timeline.play(); 
+		blocks = new Block[10][6];
+		
+		// dzielimy górn¹ po³owê ekranu na siatkê, te zmienne to wielkoœæ komórki od siatki
+		float distanceX = (float)GraphicsSystem.width / blocks.length;
+		float distanceY = (float)GraphicsSystem.height / (2 * blocks[0].length);
+		for(int i = 0; i < blocks.length; i++) {
+			for(int j = 0; j < blocks[i].length; j++) {
+				blocks[i][j] = new Block(
+						distanceX * i + distanceX * 0.01,
+						distanceY * j + distanceY * 0.01,
+						distanceX  - distanceX * 0.02,
+						distanceY  - distanceY * 0.04,
+						new Color(1.0 - i * (1.0/blocks.length), (float) i * (1.0/blocks.length), (float) (1 - j * (1.0 / blocks[i].length)), 1)
+				);
+			}
+		}
+		
 	}
-	
+
 	private void run(GraphicsContext context) {
 		GraphicsSystem.setBackground(context);
 		
@@ -83,6 +108,7 @@ public class Main extends Application implements EventHandler<KeyEvent>{
 			EventSystem.moveBall();
 			GraphicsSystem.showShelf(context);
 			EventSystem.moveShelf(context);
+			GraphicsSystem.showBlocks(context, blocks);
 			break;
 		case HIGHSCORES:
 			break;

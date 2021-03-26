@@ -84,6 +84,17 @@ public class EventSystem {
 
 	public static void moveBall() {
 		if(!Values.gameStarted) return;
+		checkIfHitOnBorder();
+		checkIfHitOnShelf();
+		
+		checkIfFailed();
+	
+		ball.xPos += ball.xMovement;
+		ball.yPos += ball.yMovement;
+		
+	}
+
+	private static void checkIfHitOnBorder() {
 		if(ball.xPos + 20 > GraphicsSystem.width && ball.yPos < 10) { // uderzenie w prawy górny róg
 			ball.xMovement = -ball.xMovement;
 			ball.yMovement = -ball.yMovement;
@@ -101,18 +112,43 @@ public class EventSystem {
 		else if(ball.yPos < 10) { // uderzenie w górn¹ krawêdŸ
 			ball.yMovement = -ball.yMovement;
 		}
-		else if(ball.yPos >= GraphicsSystem.height * 0.9 - 20
-				&& ball.xPos >= shelf.xPos
-				&& ball.xPos <= shelf.xPos + shelf.width
-				) { // uderzenie w deskê
-			ball.yMovement = -ball.yMovement;
-		}
+	}
 	
-		ball.xPos += ball.xMovement;
-		ball.yPos += ball.yMovement;
+	private static void checkIfHitOnShelf() { // wspolrzedne poziome nie zgadzaj¹ siê
+		if(ball.xPos + ball.diameter/2 < shelf.xPos
+				|| ball.xPos - ball.diameter/2 > shelf.xPos + shelf.width) {
+			return;
+		}
+		
+		if(ball.yPos + ball.diameter > shelf.yPos + ball.yMovement) { // uderzenie w róg deski, przegrana
+			return;
+		}
+		
+		
+		if(ball.yPos + ball.diameter >= shelf.yPos
+				//&& ball.xPos + ball.diameter + ball.yMovement >= shelf.yPos
+				) { // uderzenie w deskê
+			//ball.yMovement = -ball.yMovement;
+			getNewMovement();
+		}
+	}
+	
+	private static void checkIfFailed() {
+		if(ball.yPos >= GraphicsSystem.height){ // pi³ka poni¿ej deski
+			Values.gameState = GameState.MENU;
+		}
+	}
+	
+	private static void getNewMovement() {
+		double shelfCenter = (shelf.xPos + shelf.width/2);
+		double ballCenter = ball.xPos + ball.diameter/2;
+		double ballDistanceFromCenter = ballCenter - shelfCenter;
+		double distance = ballDistanceFromCenter / shelf.width;
+		ball.xMovement = Math.atan(distance) * ball.ballSpeed;
+		ball.yMovement = -Math.sqrt(Math.pow(ball.ballSpeed, 2) - Math.pow(ball.xMovement, 2));
 		
 	}
-
+	
 	public static void moveShelf(GraphicsContext context) {
 		
 		if(Values.direction == MoveDirection.LEFT && Values.leftKeyPressed) {

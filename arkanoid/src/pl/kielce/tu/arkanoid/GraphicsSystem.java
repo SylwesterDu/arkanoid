@@ -69,13 +69,22 @@ public class GraphicsSystem {
 	
 	public static void showBall(GraphicsContext context) {
 		context.setFill(Color.WHITE);
-		context.fillOval(ball.xPos, ball.yPos, ball.radius, ball.radius);
+		context.fillOval(ball.xPos, ball.yPos, ball.diameter, ball.diameter);
 		
 	}
 	
 	public static void showShelf(GraphicsContext context) {
 		context.setFill(Color.WHITE);
 		context.fillRect(shelf.xPos, shelf.yPos, shelf.width, shelf.height);
+	}
+
+	public static void showBlocks(GraphicsContext context, Block[][] blocks) {
+		for(int i = 0; i < blocks.length; i++) {
+			for(int j = 0; j < blocks[i].length; j++) {
+				context.setFill(blocks[i][j].color);
+				context.fillRect(blocks[i][j].x1, blocks[i][j].y1, blocks[i][j].width, blocks[i][j].height);
+			}
+		}
 	}
 
 	
