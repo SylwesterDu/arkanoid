@@ -18,7 +18,7 @@ public class Block {
 		this.height = height;
 		this.color = color;
 		x2 = this.x1 + width;
-		y2 = this.x2 + height;
+		y2 = this.y1 + height;
 	}
 	
 	public void setExists(boolean exists) {

@@ -8,6 +8,7 @@ public class EventSystem {
 	
 	static Ball ball = null;
 	static Shelf shelf = null;
+	static Block[][] blocks;
 	
 	public static void handleMenuEvent(KeyEvent event) {
 		if(event.getCode() == KeyCode.DOWN) {
@@ -86,12 +87,75 @@ public class EventSystem {
 		if(!Values.gameStarted) return;
 		checkIfHitOnBorder();
 		checkIfHitOnShelf();
-		
 		checkIfFailed();
+		
+		HitDirection hitDirection = checkIfHitOnBlock();
+		
+		if(hitDirection != HitDirection.NOT_HIT) {
+			System.out.println(hitDirection);
+		}
+		switch(hitDirection) {
+		case FROM_LEFT:
+			ball.xMovement = -ball.xMovement;
+			break;
+		case FROM_BOTTOM:
+			ball.yMovement = -ball.yMovement;
+			break;
+		case FROM_RIGHT:
+			ball.xMovement = -ball.xMovement;
+			break;
+		case FROM_UP:
+			ball.yMovement = -ball.yMovement;
+			break;
+		default:
+			break;
+		}
 	
 		ball.xPos += ball.xMovement;
 		ball.yPos += ball.yMovement;
 		
+	}
+
+	private static HitDirection checkIfHitOnBlock() {
+		for(int i = 0; i < blocks.length; i++) {
+			for(int j = 0; j < blocks[i].length; j++) {
+				
+				if(!blocks[i][j].getExists()) continue;
+				
+				if (
+					ball.yPos + ball.diameter >= blocks[i][j].y1
+					&& ball.yPos <= blocks[i][j].y2
+					&& ball.xPos + ball.diameter >= blocks[i][j].x1
+					&& ball.xPos <= blocks[i][j].x2
+				) { //! Sprawdzenie, czy dosz³o do uderzenia.
+					
+					blocks[i][j].setExists(false); //! Usuniêcie bloku
+					
+					if (
+						ball.xPos + ball.diameter >= blocks[i][j].x1
+						&& ball.xPos <= blocks[i][j].x1
+						) { //! Uderzenie z lewej
+						return HitDirection.FROM_LEFT;
+					}
+					else if (
+						ball.xPos <= blocks[i][j].x2
+						&& ball.xPos + ball.diameter >= blocks[i][j].x2
+						) { //! Uderzenie z prawej
+						return HitDirection.FROM_RIGHT;
+					}
+					else if (
+						ball.yPos + ball.diameter >= blocks[i][j].y1
+						&& ball.yPos <= blocks[i][j].y1
+						) { //! Uderzenie z góry
+						return HitDirection.FROM_UP;
+					}
+					else {
+						return HitDirection.FROM_BOTTOM;
+					}						
+				}
+			}
+		}
+		return HitDirection.NOT_HIT;
 	}
 
 	private static void checkIfHitOnBorder() {
@@ -115,8 +179,8 @@ public class EventSystem {
 	}
 	
 	private static void checkIfHitOnShelf() { // wspolrzedne poziome nie zgadzaj¹ siê
-		if(ball.xPos + ball.diameter/2 < shelf.xPos
-				|| ball.xPos - ball.diameter/2 > shelf.xPos + shelf.width) {
+		if(ball.xPos + ball.radius < shelf.xPos
+				|| ball.xPos - ball.radius  > shelf.xPos + shelf.width) {
 			return;
 		}
 		
@@ -125,10 +189,7 @@ public class EventSystem {
 		}
 		
 		
-		if(ball.yPos + ball.diameter >= shelf.yPos
-				//&& ball.xPos + ball.diameter + ball.yMovement >= shelf.yPos
-				) { // uderzenie w deskê
-			//ball.yMovement = -ball.yMovement;
+		if(ball.yPos + ball.diameter >= shelf.yPos) { // uderzenie w deskê
 			getNewMovement();
 		}
 	}
@@ -141,10 +202,10 @@ public class EventSystem {
 	
 	private static void getNewMovement() {
 		double shelfCenter = (shelf.xPos + shelf.width/2);
-		double ballCenter = ball.xPos + ball.diameter/2;
+		double ballCenter = ball.xPos + ball.radius;
 		double ballDistanceFromCenter = ballCenter - shelfCenter;
 		double distance = ballDistanceFromCenter / shelf.width;
-		ball.xMovement = Math.atan(distance) * ball.ballSpeed;
+		ball.xMovement = 1.6 * Math.atan(distance) * ball.ballSpeed;
 		ball.yMovement = -Math.sqrt(Math.pow(ball.ballSpeed, 2) - Math.pow(ball.xMovement, 2));
 		
 	}

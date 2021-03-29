@@ -43,7 +43,7 @@ public class Main extends Application implements EventHandler<KeyEvent>{
 		
 		Canvas canvas  = new Canvas(GraphicsSystem.width, GraphicsSystem.height);
 		GraphicsContext context = canvas.getGraphicsContext2D();
-		Timeline timeline = new Timeline(new KeyFrame(Duration.millis(5), event->run(context)));
+		Timeline timeline = new Timeline(new KeyFrame(Duration.millis(6), event->run(context)));
 		timeline.setCycleCount(Timeline.INDEFINITE);
 		
 		Scene scene = new Scene(new StackPane(canvas));
@@ -71,16 +71,17 @@ public class Main extends Application implements EventHandler<KeyEvent>{
 	}
 	
 	private void createGameObjects() {
-		ball = new Ball(GraphicsSystem.width/2 - 10, GraphicsSystem.height *0.8, 20, 3, -3);
+		ball = new Ball(GraphicsSystem.width/2 - 10, GraphicsSystem.height * 0.8, 20, 1.9, -3.8);
 		GraphicsSystem.ball = ball;
 		EventSystem.ball = ball;
 		
-		shelf = new Shelf(GraphicsSystem.width/2 -100, GraphicsSystem.height*0.9, 200, 7);
+		shelf = new Shelf(GraphicsSystem.width/2 -100, GraphicsSystem.height * 0.9, 200, 7);
 		GraphicsSystem.shelf = shelf;
 		EventSystem.shelf = shelf;
 		
 		blocks = new Block[10][6];
-		
+		GraphicsSystem.blocks = blocks;
+		EventSystem.blocks = blocks;
 		// dzielimy górn¹ po³owê ekranu na siatkê, te zmienne to wielkoœæ komórki od siatki
 		float distanceX = (float)GraphicsSystem.width / blocks.length;
 		float distanceY = (float)GraphicsSystem.height / (2 * blocks[0].length);
@@ -88,7 +89,7 @@ public class Main extends Application implements EventHandler<KeyEvent>{
 			for(int j = 0; j < blocks[i].length; j++) {
 				blocks[i][j] = new Block(
 						distanceX * i + distanceX * 0.01,
-						distanceY * j + distanceY * 0.01,
+						distanceY * j + distanceY * 0.01 + GraphicsSystem.height * 0.05,
 						distanceX  - distanceX * 0.02,
 						distanceY  - distanceY * 0.04,
 						new Color(1.0 - i * (1.0/blocks.length), (float) i * (1.0/blocks.length), (float) (1 - j * (1.0 / blocks[i].length)), 1)
@@ -108,7 +109,7 @@ public class Main extends Application implements EventHandler<KeyEvent>{
 			EventSystem.moveBall();
 			GraphicsSystem.showShelf(context);
 			EventSystem.moveShelf(context);
-			GraphicsSystem.showBlocks(context, blocks);
+			GraphicsSystem.showBlocks(context);
 			break;
 		case HIGHSCORES:
 			break;
@@ -150,12 +151,7 @@ public class Main extends Application implements EventHandler<KeyEvent>{
 		if(Values.newGame) {
 			Values.gameStarted = false;
 			Values.newGame = false;
-			ball = new Ball(GraphicsSystem.width/2 - 10, GraphicsSystem.height *0.8, 20, 3, -3);
-			GraphicsSystem.ball = ball;
-			EventSystem.ball = ball;
-			shelf = new Shelf(GraphicsSystem.width/2 -100, GraphicsSystem.height*0.9, 200, 7);
-			GraphicsSystem.shelf = shelf;
-			EventSystem.shelf = shelf;
+			createGameObjects();
 		}
 		
 	}

@@ -17,7 +17,8 @@ public class GraphicsSystem {
 	static final Color greyColor = new Color(0.4, 0.4, 0.5, 1);
 
 	static Ball ball;
-	static Shelf shelf = null;
+	static Shelf shelf;
+	static Block[][] blocks;
 		
 	public static void setBackground(GraphicsContext context) {
 		context.setFill(Color.BLACK);
@@ -78,9 +79,10 @@ public class GraphicsSystem {
 		context.fillRect(shelf.xPos, shelf.yPos, shelf.width, shelf.height);
 	}
 
-	public static void showBlocks(GraphicsContext context, Block[][] blocks) {
+	public static void showBlocks(GraphicsContext context) {
 		for(int i = 0; i < blocks.length; i++) {
 			for(int j = 0; j < blocks[i].length; j++) {
+				if(!blocks[i][j].getExists()) continue;
 				context.setFill(blocks[i][j].color);
 				context.fillRect(blocks[i][j].x1, blocks[i][j].y1, blocks[i][j].width, blocks[i][j].height);
 			}
